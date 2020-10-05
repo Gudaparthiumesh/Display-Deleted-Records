@@ -1,0 +1,163 @@
+<aura:component controller="displayDeletedRecordsCtrl" implements="force:appHostable,forceCommunity:availableForAllPageTypes,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="actualResults" type="List"/>
+    <aura:attribute name="deletedRecordsResults" type="List"/>
+    <aura:attribute name="displayAfterInit" type="boolean" default= "false"/>
+    <aura:attribute name="isOpenDeleteRecordModal" type="boolean"/>
+    <aura:attribute name="deleteRecordId" type="String"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <!--loading spinner start-->
+    <aura:if isTrue="{!v.spinner}">
+        <lightning:spinner alternativeText="Loading" size="medium"/><br/>
+    </aura:if>
+    <div style="padding: 0.2%; background: rgb(64, 64, 64);border-radius:10px 10px 0px 0px;">
+        <div class="slds-p-around_small slds-text-heading_small slds-text-color_inverse" style="text-align:center">
+            Display of Existing Records &amp; Deleted Records
+        </div>
+    </div>
+    <div class="slds-box" style="background:white;height: 90% !important">
+        <aura:if isTrue="{!v.displayAfterInit}">
+            <div style="padding: 0.2%; background: rgb(80 246 146);;border-radius:10px 10px 10px 10px;">
+                <div class="slds-text-heading_small" style="text-align:center;color:black">
+                    Existing Records 
+                </div>
+            </div>
+            <br/>
+            <div class="slds-col slds-size_12-of-12 slds-p-around_small" style="overflow-y: auto;height: 170px">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="" scope="col">
+                                <div class="slds-truncate">Account Name</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">Phone</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">Industry</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" >Email</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">Active</div>
+                            </th>
+                            <th>
+                            </th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        <aura:iteration items="{!v.actualResults}" var="res">
+                            <tr class="slds-hint-parent">
+                                <td>
+                                    <div class="slds-truncate">{!res.Name}</div>
+                                </td>
+                                <td>
+                                    <div class="slds-truncate">{!res.Phone}</div>
+                                </td>
+                                <td>
+                                    <div class="slds-truncate">{!res.Industry}</div>
+                                </td>
+                                <td >
+                                    <div class="slds-truncate">{!res.Email_Address__c}</div>
+                                </td>
+                                <td>
+                                    <div class="slds-truncate">{!res.Active__c}</div>
+                                </td>
+                                <td>
+                                    <a onclick="{!c.deleteRecord}" id="{!res.Id}"  title="Delete Record">
+                                        <lightning:icon iconName="utility:delete"  size="x-small"  variant="error"/>
+                                    </a>
+                                    <a onclick="{!c.editRecord}" id="{!res.Id}"  title="Edit Record" style="padding-left:15px">
+                                        <lightning:icon iconName="utility:edit"  size="x-small"  variant="warning"/>
+                                    </a>
+                                    <a onclick="{!c.viewRecord}" id="{!res.Id}"  title="View Record" style="padding-left:15px">
+                                        <lightning:icon iconName="utility:preview"  size="x-small"  variant="success"/>
+                                    </a>
+                                </td>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>
+            </div>
+            <br/>
+            <div style="padding: 0.2%; background: rgb(237 234 208);border-radius:10px 10px 10px 10px;">
+                <div class="slds-text-heading_small" style="text-align:center;color:red">
+                    Deleted Records
+                </div>
+            </div>
+            <br/>
+            <div class="slds-col slds-size_12-of-12 slds-p-around_small" style="overflow-y: auto;height: 170px">
+                <aura:if isTrue="{!v.deletedRecordsResults.length !=0}">
+                <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_col-bordered">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="" scope="col">
+                                <div class="slds-truncate">Account Name</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">Phone</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">Industry</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" >Email</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate">Active</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.deletedRecordsResults}" var="del">
+                            <tr class="{!((del.Id == v.deleteRecordId)? 'setRed': 'setBlack') }">
+                                <td>
+                                    <div class="slds-truncate">{!del.Name}</div>
+                                </td>
+                                <td>
+                                    <div class="slds-truncate">{!del.Phone}</div>
+                                </td>
+                                <td>
+                                    <div class="slds-truncate">{!del.Industry}</div>
+                                </td>
+                                <td >
+                                    <div class="slds-truncate">{!del.Email_Address__c}</div>
+                                </td>
+                                <td>
+                                    <div class="slds-truncate">{!del.Active__c}</div>
+                                </td>
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>
+                    <aura:set attribute="else">
+                        <p align="center" style="color:red" class="slds-text-heading_medium"> No Results Found</p>
+                    </aura:set>
+                </aura:if>
+            </div>
+        </aura:if>
+    </div>
+    <aura:if isTrue="{!v.isOpenDeleteRecordModal}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Are you sure you want to delete the Record?</h2>
+                </header>
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="brand" 
+                                      label="OK"
+                                      title="OK"
+                                      value="{!v.deleteRecordId}"
+                                      onclick="{!c.confirmDelete}"/>
+                    <lightning:button variant="destructive" 
+                                      label="Cancel"
+                                      title="Cancel"
+                                      onclick="{!c.cancelDelete}"/>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+</aura:component>
